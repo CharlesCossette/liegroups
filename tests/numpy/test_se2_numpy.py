@@ -67,6 +67,22 @@ def test_perturb():
     T.perturb(xi)
     assert np.allclose(T.as_matrix(), (SE2.exp(xi).dot(T_copy)).as_matrix())
 
+def test_perturb_left():
+    T = SE2.exp([1, 2, 3])
+    T.set_perturb_direction("left")
+    T_copy = copy.deepcopy(T)
+    xi = [0.3, 0.2, 0.1]
+    T.perturb(xi)
+    assert np.allclose(T.as_matrix(), (SE2.exp(xi).dot(T_copy)).as_matrix())
+
+def test_perturb_right():
+    T = SE2.exp([1, 2, 3])
+    T.set_perturb_direction("right")
+    T_copy = copy.deepcopy(T)
+    xi = [0.3, 0.2, 0.1]
+    T.perturb(xi)
+    assert np.allclose(T.as_matrix(), (T_copy.dot(SE2.exp(xi))).as_matrix())
+
 
 def test_normalize():
     T = SE2.exp([1, 2, 3])

@@ -127,6 +127,23 @@ def test_perturb():
     C.perturb(phi)
     assert np.allclose(C.as_matrix(), (SO3.exp(phi).dot(C_copy)).as_matrix())
 
+def test_perturb_left():
+    C = SO3.exp(np.pi * np.ones(3) / 4)
+    C.set_perturb_direction("left")
+    C_copy = copy.deepcopy(C)
+    phi = np.array([0.3, 0.2, 0.1])
+    C.perturb(phi)
+    assert np.allclose(C.as_matrix(), (SO3.exp(phi).dot(C_copy)).as_matrix())
+
+def test_perturb_right():
+    C = SO3.exp(np.pi * np.ones(3) / 4)
+    C.set_perturb_direction("right")
+    C_copy = copy.deepcopy(C)
+    phi = np.array([0.3, 0.2, 0.1])
+    C.perturb(phi)
+    assert np.allclose(C.as_matrix(), (C_copy.dot(SO3.exp(phi))).as_matrix())
+
+
 
 def test_normalize():
     C = SO3.exp(np.pi * np.ones(3) / 4)

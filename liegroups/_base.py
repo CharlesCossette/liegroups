@@ -87,6 +87,17 @@ class MatrixLieGroupBase(LieGroupBase):
         """Return a string representation of the transformation."""
         return "<{}.{}>\n{}".format(self.__class__.__module__, self.__class__.__name__, self.as_matrix()).replace("\n", "\n| ")
 
+    def set_perturb_direction(self, direction="left"):
+        """
+        Set whether this class' .perturb() function should be multiplied on 
+        the left or right.
+        """
+        if direction != "left" and direction != "right":
+            raise RuntimeError(
+                'Only "left" or "right" perturbation directions are supported.'
+                )
+        self._perturb_direction = direction
+
     @abstractmethod
     def adjoint(self):
         """Return the adjoint matrix of the transformation."""
@@ -160,7 +171,13 @@ class SOMatrixBase(MatrixLieGroupBase):
         .. math::
             \\mathbf{C} \\gets \\exp(\\boldsymbol{\\phi}^\\wedge) \\mathbf{C}
         """
-        self.mat = self.__class__.exp(phi).dot(self).mat
+        lr = getattr(self, "_perturb_direction", "left")
+
+        if lr == "left":
+            self.mat = self.__class__.exp(phi).dot(self).mat
+        elif lr == "right":
+            self.mat = self.dot(self.__class__.exp(phi)).mat
+
 
 
 class SEMatrixBase(MatrixLieGroupBase):
@@ -187,7 +204,12 @@ class SEMatrixBase(MatrixLieGroupBase):
         .. math::
             \\mathbf{T} \\gets \\exp(\\boldsymbol{\\xi}^\\wedge) \\mathbf{T}
         """
-        perturbed = self.__class__.exp(xi).dot(self)
+        lr = getattr(self, "_perturb_direction", "left")
+
+        if lr == "left":
+            perturbed = self.__class__.exp(xi).dot(self)
+        elif lr == "right":
+            perturbed = self.dot(self.__class__.exp(xi))
         self.rot = perturbed.rot
         self.trans = perturbed.trans
 
